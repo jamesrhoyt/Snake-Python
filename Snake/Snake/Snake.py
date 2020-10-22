@@ -44,6 +44,7 @@ finalscore_text = "SCORE: "
 reset_text = "PRESS 'R' TO RESET"
 quit_text = "[ESC] QUIT"
 colors_text = "1-0: CHANGE COLORS"
+autoplay_text = "[P] AUTOPLAY"
 bored_text = "[P] I'M BORED, PLAY FOR ME"
 stop_text = "[P] STOP PLAYING FOR ME"
 loop_text = "[L] LOOP"
@@ -186,6 +187,9 @@ def gameLoop():
                     current_color = 8
                 if event.key==pygame.K_9 or event.key==pygame.K_KP9:
                     current_color = 9
+                # P: Enable Autoplay (only available before starting)
+                if event.key==pygame.K_p and x1_change==0 and y1_change==0:
+                    gameLoopAuto()
         # If the Snake hits a Wall, Game Over.
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
@@ -213,6 +217,9 @@ def gameLoop():
         draw_snake(snake_block, snake_List)
         # Draw the Score
         message(str(score), dis_width - font_style.size(str(score))[0] - 4, 4)
+        # Draw the Autoplay Prompt (if the game hasn't started yet).
+        if x1_change==0 and y1_change==0:
+            message(autoplay_text, 8, dis_height - font_style.size(autoplay_text)[1] - 8)
         # Update the Window
         pygame.display.update()
         #If the Snake Collides with the Food, Increase the Score and Reset the Food
@@ -238,7 +245,98 @@ def gameLoop():
     pygame.quit()
     quit()
 
+# Determine what Direction the Snake should move in at every step.
+def chooseDirection(x1, y1, x1_change, y1_change, foodx, foody, snake_List):
+    # First, determine which adjacent spaces are blocked by the Snake's body.
+    up_blocked = False
+    down_blocked = False
+    left_blocked = False
+    right_blocked = False
+    # Iterate through the Snake's body and trip any "adjacent-square" flags.
+    for body in snake_List[:-1]:
+        if body==[x1,y1 - snake_block]:
+            up_blocked = True
+        elif body==[x1,y1 + snake_block]:
+            down_blocked = True
+        elif body==[x1 - snake_block,y1]:
+            left_blocked = True
+        elif body==[x1 + snake_block,y1]:
+            right_blocked = True
+    # Second, see if moving into this square will get us closer to the Food.
+    up_closer = False
+    down_closer = False
+    left_closer = False
+    right_closer = False
+    # There's no need to "sqrt" the distances - if the squared value is less than, the value itself would be as well.
+    # Check if "Up" is not blocked and will move us closer.
+    if not up_blocked:
+        if ((x1-foodx)**2+((y1-snake_block)-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+            up_closer = True
+            # If the Snake is already moving Up, or hasn't moved at all yet, return "Up".
+            if y1_change == -snake_block or (x1_change==0 and y1_change==0):
+                return (0,-snake_block)
+    # Check if "Down" is not blocked and will move us closer.
+    if not down_blocked:
+        if ((x1-foodx)**2+((y1+snake_block)-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+            down_closer = True
+            # If the Snake is already moving Down, or hasn't moved at all yet, return "Down".
+            if y1_change == snake_block or (x1_change==0 and y1_change==0):
+                return (0,snake_block)
+    # Check if "Left" is not blocked and will move us closer.
+    if not left_blocked:
+        if (((x1-snake_block)-foodx)**2+(y1-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+            left_closer = True
+            # If the Snake is already moving Left, or hasn't moved at all yet, return "Left".
+            if x1_change == -snake_block or (x1_change==0 and y1_change==0):
+                return (-snake_block,0)
+    # Check if "Right" is not blocked and will move us closer.
+    if not right_blocked:
+        if (((x1+snake_block)-foodx)**2+(y1-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+            right_closer = True
+            # If the Snake is already moving Right, or hasn't moved at all yet, return "Right".
+            if x1_change == snake_block or (x1_change==0 and y1_change==0):
+                return (snake_block,0)
+    # If multiple directions will move us closer, pick the first one in the list.
+    if up_closer:
+        return (0,-snake_block)
+    elif down_closer:
+        return (0,snake_block)
+    elif left_closer:
+        return (-snake_block,0)
+    elif right_closer:
+        return (snake_block,0)
+    # If *no* direction will move us closer, turn the Snake in a direction that will enable it to move closer next turn.
+    else:
+        # If the Snake is currently moving Up or Down, determine whether turning Left or Right would be safer.
+        if y1_change != 0:
+            # If "Left" isn't blocked and the Snake isn't against the Left Border, go left.
+            if not left_blocked and x1 != 0:
+                return (-snake_block,0)
+            # If "Right" isn't blocked and the Snake isn't against the Right Border, go right.
+            elif not right_blocked and x1 != dis_width - snake_block:
+                return (snake_block,0)
+            # If neither direction is safe, keep moving forward.
+            else:
+                return (0,y1_change)
+        # If the Snake is currently moving Left or Right, determine whether turning Up or Down would be safer.
+        elif x1_change != 0:
+            # If "Up" isn't blocked and the Snake isn't against the Top Border, go up.
+            if not up_blocked and y1 != 0:
+                return (0,-snake_block)
+            # If "Down" isn't blocked and the Snake isn't against the Bottom Border, go down.
+            elif not down_blocked and y1 != dis_height - snake_block:
+                return (0,snake_block)
+            # If neither direction is safe, keep moving forward.
+            else:
+                return (x1_change,0)
+        # If the Snake cannot move in any direction, simply have it move forward and get a Game Over.
+        elif up_blocked and down_blocked and left_blocked and right_blocked:
+            return (x1_change,y1_change)
+
 # Manage the Loop to Run the Game Automatically
+
+
+
 def gameLoopAuto():
     #Initialize the Game State Management variables
     game_over = False
@@ -364,7 +462,9 @@ def gameLoopAuto():
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
         # Determine what direction to move the Snake in.
-        # 
+        (x1_change,y1_change) = chooseDirection(x1,y1,x1_change,y1_change,foodx,foody,snake_List)
+        x1 += x1_change
+        y1 += y1_change
         # Refresh the Window
         dis.fill(black)
         # Draw the Food

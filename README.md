@@ -7,10 +7,10 @@ Snake (Python)
 *  1-0 - Change Colors
 *  R - Reset
 *  Escape - Quit
-*  P - Start/Stop Autoplay (Coming soon!)
+*  P - Start/Stop Autoplay
 *  L - Automatically Reset on Game Over (*Only available during Autoplay)
-*  H - Show/Hide Prompy Display (*Only available during Autoplay)
+*  H - Show/Hide Prompt Display (*Only available during Autoplay)
 
 ### Upcoming Features
 
-*  An Autoplay function, likely using Shortest Path BFS (Breadth-First Search)
+*  Autoplay refinement, likely using a Probe, Maze Search, or Pledge algorithm.
