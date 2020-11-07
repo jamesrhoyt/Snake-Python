@@ -262,81 +262,155 @@ def chooseDirection(x1, y1, x1_change, y1_change, foodx, foody, snake_List):
             left_blocked = True
         elif body==[x1 + snake_block,y1]:
             right_blocked = True
+    # Also trip any "adjacent-square" flags if the Snake head is against an edge of the play field.
+    if y1 == 0:
+        up_blocked = True
+    if y1 == dis_height - snake_block:
+        down_blocked = True
+    if x1 == 0:
+        left_blocked = True
+    if x1 == dis_width - snake_block:
+        right_blocked = True
     # Second, see if moving into this square will get us closer to the Food.
     up_closer = False
     down_closer = False
     left_closer = False
     right_closer = False
     # There's no need to "sqrt" the distances - if the squared value is less than, the value itself would be as well.
+    # Check if "Up" will move us closer.
+    if ((x1-foodx)**2+((y1-snake_block)-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+        up_closer = True
+    # Check if "Down" will move us closer.
+    if ((x1-foodx)**2+((y1+snake_block)-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+        down_closer = True
+    # Check if "Left" will move us closer.
+    if (((x1-snake_block)-foodx)**2+(y1-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+        left_closer = True
+    # Check if "Right" will move us closer.
+    if (((x1+snake_block)-foodx)**2+(y1-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
+        right_closer = True
     # Check if "Up" is not blocked and will move us closer.
-    if not up_blocked:
-        if ((x1-foodx)**2+((y1-snake_block)-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
-            up_closer = True
-            # If the Snake is already moving Up, or hasn't moved at all yet, return "Up".
-            if y1_change == -snake_block or (x1_change==0 and y1_change==0):
-                return (0,-snake_block)
+    if not up_blocked and up_closer:
+        # If the Snake is already moving Up, or hasn't moved at all yet, return "Up".
+        if y1_change == -snake_block or (x1_change==0 and y1_change==0):
+            return (0,-snake_block)
+        # Determine whether or not moving closer to the Food will inadvertantly trap the Snake.
+        else:
+            for i in range(1, 7):
+                for x in snake_List[:-1]:
+                    # If a blockage is closer toward "Up", return either "Left", "Right", or "Down".
+                    if [x1, y1 - (snake_block * i)] == x:
+                        # If already heading Left and Left isn't blocked, go Left.
+                        if x1_change == -snake_block and not left_blocked:
+                            return (-snake_block, 0)
+                        # If already heading Right and Right isn't blocked, go Right.
+                        elif x1_change == snake_block and not right_blocked:
+                            return (snake_block, 0)
+                        # Otherwise, if Down isn't blocked, return "Down".
+                        elif not down_blocked:
+                            return (0,snake_block)
+            # If not, return Up.
+            return (0,-snake_block)
     # Check if "Down" is not blocked and will move us closer.
-    if not down_blocked:
-        if ((x1-foodx)**2+((y1+snake_block)-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
-            down_closer = True
-            # If the Snake is already moving Down, or hasn't moved at all yet, return "Down".
-            if y1_change == snake_block or (x1_change==0 and y1_change==0):
-                return (0,snake_block)
+    if not down_blocked and down_closer:
+        # If the Snake is already moving Down, or hasn't moved at all yet, return "Down".
+        if y1_change == snake_block or (x1_change==0 and y1_change==0):
+            return (0,snake_block)
+        # Determine whether or not moving closer to the Food will inadvertantly trap the Snake.
+        else:
+            for i in range(1, 7):
+                for x in snake_List[:-1]:
+                    # If a blockage is closer toward "Down", return either "Left", "Right", or "Up".
+                    if [x1, y1 + (snake_block * i)] == x:
+                        # If already heading Left and Left isn't blocked, go Left.
+                        if x1_change == -snake_block and not left_blocked:
+                            return (-snake_block, 0)
+                        # If already heading Right and Right isn't blocked, go Right.
+                        elif x1_change == snake_block and not right_blocked:
+                            return (snake_block, 0)
+                        # Otherwise, return "Up".
+                        elif not up_blocked:
+                            return (0,-snake_block)
+            # If not, return Down.
+            return (0,snake_block)
     # Check if "Left" is not blocked and will move us closer.
-    if not left_blocked:
-        if (((x1-snake_block)-foodx)**2+(y1-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
-            left_closer = True
-            # If the Snake is already moving Left, or hasn't moved at all yet, return "Left".
-            if x1_change == -snake_block or (x1_change==0 and y1_change==0):
-                return (-snake_block,0)
+    if not left_blocked and left_closer:
+        # If the Snake is already moving Left, or hasn't moved at all yet, return "Left".
+        if x1_change == -snake_block or (x1_change==0 and y1_change==0):
+            return (-snake_block,0)
+        # Determine whether or not moving closer to the Food will inadvertantly trap the Snake.
+        else:
+            for i in range(1, 7):
+                for x in snake_List[:-1]:
+                    # If a blockage is closer toward "Left", return either "Up", "Down", or "Right".
+                    if [x1 - (snake_block * i), y1] == x:
+                        # If already heading Up and Up isn't blocked, go Up.
+                        if y1_change == -snake_block and not up_blocked:
+                            return (0,-snake_block)
+                        # If already heading Down and Down isn't blocked, go Down.
+                        elif y1_change == snake_block and not down_blocked:
+                            return (0, snake_block)
+                        # Otherwise, return "Right".
+                        elif not right_blocked:
+                            return (snake_block,0)
+            # If not, return Left.
+            return (-snake_block,0)
     # Check if "Right" is not blocked and will move us closer.
-    if not right_blocked:
-        if (((x1+snake_block)-foodx)**2+(y1-foody)**2) < ((x1-foodx)**2)+((y1-foody)**2):
-            right_closer = True
-            # If the Snake is already moving Right, or hasn't moved at all yet, return "Right".
-            if x1_change == snake_block or (x1_change==0 and y1_change==0):
-                return (snake_block,0)
-    # If multiple directions will move us closer, pick the first one in the list.
-    if up_closer:
+    if not right_blocked and right_closer:
+        # If the Snake is already moving Right, or hasn't moved at all yet, return "Right".
+        if x1_change == snake_block or (x1_change==0 and y1_change==0):
+            return (snake_block,0)
+        # Determine whether or not moving closer to the Food will inadvertantly trap the Snake.
+        else:
+            for i in range(1, 7):
+                for x in snake_List[:-1]:
+                    # If a blockage is closer toward "Right", return either "Up", "Down", or "Left".
+                    if [x1 + (snake_block * i), y1] == x:
+                        # If already heading Up and Up isn't blocked, go Up.
+                        if y1_change == -snake_block and not up_blocked:
+                            return (0,-snake_block)
+                        # If already heading Down and Down isn't blocked, go Down.
+                        elif y1_change == snake_block and not down_blocked:
+                            return (0, snake_block)
+                        # Otherwise, return "Left".
+                        elif not left_blocked:
+                            return (-snake_block,0)
+            # If not, return Right.
+            return (snake_block,0)
+    # If multiple directions will move us closer (and aren't blocked), choose the first one in the list
+    if up_closer and not up_blocked:
         return (0,-snake_block)
-    elif down_closer:
+    elif down_closer and not down_blocked:
         return (0,snake_block)
-    elif left_closer:
+    elif left_closer and not left_blocked:
         return (-snake_block,0)
-    elif right_closer:
+    elif right_closer and not right_blocked:
         return (snake_block,0)
     # If *no* direction will move us closer, turn the Snake in a direction that will enable it to move closer next turn.
     else:
         # If the Snake is currently moving Up or Down, determine whether turning Left or Right would be safer.
         if y1_change != 0:
-            # If "Left" isn't blocked and the Snake isn't against the Left Border, go left.
-            if not left_blocked and x1 != 0:
-                return (-snake_block,0)
-            # If "Right" isn't blocked and the Snake isn't against the Right Border, go right.
-            elif not right_blocked and x1 != dis_width - snake_block:
-                return (snake_block,0)
-            # If neither direction is safe, keep moving forward.
-            else:
-                return (0,y1_change)
+            for i in range(1, int(dis_width/snake_block)):
+                for x in snake_List[:-1]:
+                    if [x1 - (snake_block * i), y1] == x: # or (x1-(snake_block * i) < 0):
+                        return (snake_block,0)
+                    if [x1 + (snake_block * i), y1] == x: # or (x1+(snake_block * i) > dis_width):
+                        return (-snake_block,0)
+            return (-snake_block,0)
         # If the Snake is currently moving Left or Right, determine whether turning Up or Down would be safer.
         elif x1_change != 0:
-            # If "Up" isn't blocked and the Snake isn't against the Top Border, go up.
-            if not up_blocked and y1 != 0:
-                return (0,-snake_block)
-            # If "Down" isn't blocked and the Snake isn't against the Bottom Border, go down.
-            elif not down_blocked and y1 != dis_height - snake_block:
-                return (0,snake_block)
-            # If neither direction is safe, keep moving forward.
-            else:
-                return (x1_change,0)
+            for i in range(1, int(dis_height/snake_block)):
+                for x in snake_List[:-1]:
+                    if [x1, y1 - (snake_block * i)] == x: # or (y1-(snake_block * i) < 0):
+                        return (0,snake_block)
+                    if [x1, y1 + (snake_block * i)] == x: # or (x1-(snake_block * i) > dis_height):
+                        return (0,-snake_block)
+            return (0,-snake_block)
         # If the Snake cannot move in any direction, simply have it move forward and get a Game Over.
         elif up_blocked and down_blocked and left_blocked and right_blocked:
             return (x1_change,y1_change)
 
 # Manage the Loop to Run the Game Automatically
-
-
-
 def gameLoopAuto():
     #Initialize the Game State Management variables
     game_over = False
