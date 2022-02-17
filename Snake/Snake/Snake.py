@@ -6,13 +6,13 @@ import random
 # Initialize Modules
 pygame.init()
 
-# Set Up the Game Window
-dis_width = 400
-dis_height = 300
+# Set up the game window
+dis_width = 800
+dis_height = 600
 dis = pygame.display.set_mode((dis_width,dis_height))
 pygame.display.set_caption('Snake (Python)')
 
-# Initialize the Color Variables
+# Initialize the Color variables
 colors = [
     (255,255,255), # White
     (255,0,0),     # Red
@@ -32,13 +32,13 @@ clock = pygame.time.Clock()
 snake_speed = 12
 snake_block = dis_height / 30
 
-# Set Whether or Not to Automatically Restart on Game Over during Autoplay
+# Set whether or not to automatically restart on Game Over during Autoplay
 looping = False
 
-# Set Whether or Not to Display the "Loop" and "Hide" Prompts during Autoplay
+# Set whether or not to display the "Loop" and "Hide" Prompts during Autoplay
 displayLoopText = True
 
-# Set Up the Game Messages
+# Set up the game messages
 font_style = pygame.font.SysFont('Impact', int(dis_height / 12.5))
 finalscore_text = "SCORE: "
 reset_text = "PRESS 'R' TO RESET"
@@ -59,13 +59,13 @@ def draw_snake(snake_block, snake_list):
     for x in snake_list:
         pygame.draw.rect(dis, colors[current_color], [x[0], x[1], snake_block, snake_block])
 
-# Manage the Loop to Run and Reset the Game
+# Manage the loop to run and reset the game
 def gameLoop():
     #Initialize the Game State Management variables
     game_over = False
     game_close = False
 
-    # Initialize the Movement Variables
+    # Initialize the Movement variables
     x1 = dis_width/2
     y1 = dis_height/2
     x1_change = 0
@@ -74,24 +74,24 @@ def gameLoop():
     # Retrieve the global Color variable
     global current_color
 
-    # Initialize the Snake and Score (Score is Used to Measure Snake Length)
+    # Initialize the Snake and Score (Score is used to measure Snake length)
     snake_List = []
     score = 0
 
-    # Randomize Food Placement
-    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+    # Randomize food placement
+    foodx = round(random.randrange(0, dis_width - snake_block) / snake_block) * snake_block
+    foody = round(random.randrange(0, dis_height - snake_block) / snake_block) * snake_block
     food_placed = True
 
     while not game_over:
-        # Handle the Game Over/Restart State
+        # Handle the Game Over/Restart state
         while game_close==True:
-            # Draw the current Game State
+            # Draw the current game state
             dis.fill(black)
             pygame.draw.rect(dis, colors[current_color], [foodx,foody,snake_block,snake_block])
             draw_snake(snake_block, snake_List)
             message(str(score), dis_width - font_style.size(str(score))[0] - 4, 4)
-            # Print the Game Over Messages
+            # Print the Game Over messages
             message(finalscore_text+str(score),(dis_width/2)-(font_style.size(finalscore_text+str(score))[0]/2), (dis_height/4))
             message(reset_text, (dis_width/2)-(font_style.size(reset_text)[0]/2), (dis_height/4) + font_style.size(reset_text)[1] + 16)
             message(quit_text, dis_width - font_style.size(quit_text)[0] - 8, dis_height - font_style.size(quit_text)[1] - 8)
@@ -104,17 +104,17 @@ def gameLoop():
                     game_over = True
                     game_close = False
                 if event.type==pygame.KEYDOWN:
-                    # R: Reset the Game
+                    # R: Reset the game
                     if event.key==pygame.K_r:
                         gameLoop()
-                    # P: Start Playing the Game Automatically
+                    # P: Start playing the game automatically
                     if event.key==pygame.K_p:
                         gameLoopAuto()
-                    # Esc: Quit the Game
+                    # Esc: Quit the game
                     if event.key==pygame.K_ESCAPE:
                         game_over = True
                         game_close = False
-                    # 1-0: Change the Display Color
+                    # 1-0: Change the display Color
                     if event.key==pygame.K_0 or event.key==pygame.K_KP0:
                         current_color = 0
                     if event.key==pygame.K_1 or event.key==pygame.K_KP1:
@@ -140,33 +140,33 @@ def gameLoop():
             # Quit if the "Close" Button is pressed
             if event.type==pygame.QUIT:
                 game_over = True
-            # Change the Snake's Direction when the Arrows are pressed.
+            # Change the Snake's direction when the Arrows are pressed.
             if event.type==pygame.KEYDOWN:
                 # Left/A:
                 if event.key==pygame.K_LEFT or event.key==pygame.K_a:
-                    # If "Right" is the Current Direction, Don't Allow Backwards Movement
+                    # If "Right" is the current direction, don't allow backwards movement
                     if x1_change != snake_block:
                         x1_change = -snake_block
                         y1_change = 0
                 # Right/D:
                 elif event.key==pygame.K_RIGHT or event.key==pygame.K_d:
-                    # If "Left" is the Current Direction, Don't Allow Backwards Movement
+                    # If "Left" is the current direction, don't allow backwards movement
                     if x1_change != -snake_block:
                         x1_change = snake_block
                         y1_change = 0
                 # Up/W:
                 elif event.key==pygame.K_UP or event.key==pygame.K_w:
-                    # If "Down" is the Current Direction, Don't Allow Backwards Movement
+                    # If "Down" is the current direction, don't allow backwards movement
                     if y1_change != snake_block:
                         x1_change = 0
                         y1_change = -snake_block
                 # Down/S:
                 elif event.key==pygame.K_DOWN or event.key==pygame.K_s:
-                    # If "Up" is the Current Direction, Don't Allow Backwards Movement
+                    # If "Up" is the current direction, don't allow backwards movement
                     if y1_change != -snake_block:
                         x1_change = 0
                         y1_change = snake_block
-                # 1-0: Change the Display Color
+                # 1-0: Change the display Color
                 if event.key==pygame.K_0 or event.key==pygame.K_KP0:
                     current_color = 0
                 if event.key==pygame.K_1 or event.key==pygame.K_KP1:
@@ -190,7 +190,7 @@ def gameLoop():
                 # P: Enable Autoplay (only available before starting)
                 if event.key==pygame.K_p and x1_change==0 and y1_change==0:
                     gameLoopAuto()
-        # If the Snake hits a Wall, Game Over.
+        # If the Snake hits a wall, Game Over.
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
         # Update the Snake's position
@@ -200,16 +200,16 @@ def gameLoop():
         dis.fill(black)
         # Draw the Food
         pygame.draw.rect(dis, colors[current_color], [foodx,foody,snake_block,snake_block])
-        # Add Another Block to the Snake
+        # Add another block to the Snake
         snake_Head = []
         snake_Head.append(x1)
         snake_Head.append(y1)
         snake_List.append(snake_Head)
-        # Keep the Snake the Appropriate Length by Removing the First Element
-        # The Snake is Essentially Drawn Backward, Relative to its Array Order and Perceived Movement Direction
+        # Keep the Snake the appropriate length by removing the first element
+        # The Snake is essentially drawn backward, relative to its array order and perceived movement direction
         if(len(snake_List) > score + 1):
             del snake_List[0]
-        # If the Head of the Snake has Collided With its Body Anywhere, Game Over.
+        # If the Head of the Snake has collided with its Body anywhere, Game Over.
         for x in snake_List[:-1]:
             if x==snake_Head:
                 game_close = True
@@ -222,11 +222,11 @@ def gameLoop():
             message(autoplay_text, 8, dis_height - font_style.size(autoplay_text)[1] - 8)
         # Update the Window
         pygame.display.update()
-        #If the Snake Collides with the Food, Increase the Score and Reset the Food
+        #If the Snake collides with the Food, increase the Score and reset the Food
         if x1==foodx and y1==foody:
             score += 1
-            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+            foodx = round(random.randrange(0, dis_width - snake_block) / snake_block) * snake_block
+            foody = round(random.randrange(0, dis_height - snake_block) / snake_block) * snake_block
             # Make sure the Food is not under any part of the Snake body.
             food_placed = False
             while not food_placed:
@@ -235,8 +235,8 @@ def gameLoop():
                     if x == [foodx, foody]:
                         food_placed = False
                         # print("Replacing Food...") # Use this to test how often the Food has to be moved.
-                        foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-                        foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+                        foodx = round(random.randrange(0, dis_width - snake_block) / snake_block) * snake_block
+                        foody = round(random.randrange(0, dis_height - snake_block) / snake_block) * snake_block
 
         # Refresh "snake_speed" times per second (currently 12)
         clock.tick(snake_speed)
@@ -410,7 +410,7 @@ def chooseDirection(x1, y1, x1_change, y1_change, foodx, foody, snake_List):
         elif up_blocked and down_blocked and left_blocked and right_blocked:
             return (x1_change,y1_change)
 
-# Manage the Loop to Run the Game Automatically
+# Manage the loop to run the Game automatically
 def gameLoopAuto():
     #Initialize the Game State Management variables
     game_over = False
@@ -425,34 +425,34 @@ def gameLoopAuto():
     # Retrieve the global Color variable
     global current_color
 
-    # Initialize the Snake and Score (Score is Used to Measure Snake Length)
+    # Initialize the Snake and Score (Score is used to measure Snake length)
     snake_List = []
     score = 0
 
-    # Randomize Food Placement
-    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+    # Randomize Food placement
+    foodx = round(random.randrange(0, dis_width - snake_block) / snake_block) * snake_block
+    foody = round(random.randrange(0, dis_height - snake_block) / snake_block) * snake_block
     food_placed = True
 
-    # Set Whether or Not to Automatically Restart on Game Over
+    # Set whether or not to automatically restart on Game Over
     global looping
 
-    # Set Whether or Not to Display the "Loop" and "Hide" Prompts
+    # Set whether or not to display the "Loop" and "Hide" Prompts
     global displayLoopText
 
     while not game_over:
-        # Handle the Game Over/Restart State
+        # Handle the Game Over/Restart state
         while game_close==True:
-            # If the Game is Meant to Reset Automatically, Do So.
+            # If the Game is meant to reset automatically, do so.
             if looping==True:
                 gameLoopAuto()
             else:
-                # Draw the current Game State
+                # Draw the current Game state
                 dis.fill(black)
                 pygame.draw.rect(dis, colors[current_color], [foodx,foody,snake_block,snake_block])
                 draw_snake(snake_block, snake_List)
                 message(str(score), dis_width - font_style.size(str(score))[0] - 4, 4)
-                # Print the Game Over Messages
+                # Print the Game Over messages
                 message(finalscore_text+str(score),(dis_width/2)-(font_style.size(finalscore_text+str(score))[0]/2), (dis_height/4))
                 message(reset_text, (dis_width/2)-(font_style.size(reset_text)[0]/2), (dis_height/4) + font_style.size(reset_text)[1] + 16)
                 message(quit_text, dis_width - font_style.size(quit_text)[0] - 8, dis_height - font_style.size(quit_text)[1] - 8)
@@ -468,14 +468,14 @@ def gameLoopAuto():
                         # R: Reset the Game
                         if event.key==pygame.K_r:
                             gameLoopAuto()
-                        # P: Stop Playing the Game Automatically
+                        # P: Stop playing the Game automatically
                         if event.key==pygame.K_p:
                             gameLoop()
                         # Esc: Quit the Game
                         if event.key==pygame.K_ESCAPE:
                             game_over = True
                             game_close = False
-                        # 1-0: Change the Display Color
+                        # 1-0: Change the display Color
                         if event.key==pygame.K_0 or event.key==pygame.K_KP0:
                             current_color = 0
                         if event.key==pygame.K_1 or event.key==pygame.K_KP1:
@@ -497,7 +497,7 @@ def gameLoopAuto():
                         if event.key==pygame.K_9 or event.key==pygame.K_KP9:
                             current_color = 9
 
-        #Check for User Input During Autoplay
+        #Check for user input during Autoplay
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 game_over = True
@@ -505,13 +505,13 @@ def gameLoopAuto():
                 # ESC: Close the Game
                 if event.key==pygame.K_ESCAPE:
                     game_over = True
-                # L: Toggle the Autoplay Looping
+                # L: Toggle the Autoplay looping
                 if event.key==pygame.K_l:
                     looping = not looping
-                # H: Toggle Displaying Text Mid-Game
+                # H: Toggle displaying text mid-game
                 if event.key==pygame.K_h:
                     displayLoopText = not displayLoopText
-                # 1-0: Change the Display Color
+                # 1-0: Change the display Color
                 if event.key==pygame.K_0 or event.key==pygame.K_KP0:
                     current_color = 0
                 if event.key==pygame.K_1 or event.key==pygame.K_KP1:
@@ -532,7 +532,7 @@ def gameLoopAuto():
                     current_color = 8
                 if event.key==pygame.K_9 or event.key==pygame.K_KP9:
                     current_color = 9
-        # If the Snake hits a Wall, Game Over.
+        # If the Snake hits a wall, Game Over.
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
         # Determine what direction to move the Snake in.
@@ -543,16 +543,16 @@ def gameLoopAuto():
         dis.fill(black)
         # Draw the Food
         pygame.draw.rect(dis, colors[current_color], [foodx,foody,snake_block,snake_block])
-        # Add Another Block to the Snake
+        # Add another block to the Snake
         snake_Head = []
         snake_Head.append(x1)
         snake_Head.append(y1)
         snake_List.append(snake_Head)
-        # Keep the Snake the Appropriate Length by Removing the First Element
-        # The Snake is Essentially Drawn Backward, Relative to its Array Order and Perceived Movement Direction
+        # Keep the Snake the appropriate length by removing the first element
+        # The Snake is essentially drawn backward, relative to its array order and perceived movement direction
         if(len(snake_List) > score + 1):
             del snake_List[0]
-        # If the Head of the Snake has Collided With its Body Anywhere, Game Over.
+        # If the Head of the Snake has collided with its Body anywhere, Game Over.
         for x in snake_List[:-1]:
             if x==snake_Head:
                 game_close = True
@@ -560,20 +560,20 @@ def gameLoopAuto():
         draw_snake(snake_block, snake_List)
         # Draw the Score
         message(str(score), dis_width - font_style.size(str(score))[0] - 4, 4)
-        # If Not Being Hidden, Draw the "Loop" and "Hide" Prompts
+        # If not being hidden, draw the "Loop" and "Hide" Prompts
         if displayLoopText==True:
             message(loop_text, 8, dis_height - font_style.size(loop_text)[1] - 8)
             message(hide_text, 24 + font_style.size(loop_text)[0], dis_height - font_style.size(hide_text)[1] - 8)
-            # If Looping, Draw the Notification Message
+            # If looping, draw the notification Message
             if looping==True:
                 message(looping_text, dis_width - font_style.size(looping_text)[0] - 8, dis_height - font_style.size(looping_text)[1] - 8)
         # Update the Window
         pygame.display.update()
-        #If the Snake Collides with the Food, Increase the Score and Reset the Food
+        #If the Snake collides with the Food, increase the Score and Reset the Food
         if x1==foodx and y1==foody:
             score += 1
-            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+            foodx = round(random.randrange(0, dis_width - snake_block) / snake_block) * snake_block
+            foody = round(random.randrange(0, dis_height - snake_block) / snake_block) * snake_block
             # Make sure the Food is not under any part of the Snake body.
             food_placed = False
             while not food_placed:
@@ -582,8 +582,8 @@ def gameLoopAuto():
                     if x == [foodx, foody]:
                         food_placed = False
                         # print("Replacing Food...") # Use this to test how often the Food has to be moved.
-                        foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-                        foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+                        foodx = round(random.randrange(0, dis_width - snake_block) / snake_block) * snake_block
+                        foody = round(random.randrange(0, dis_height - snake_block) / snake_block) * snake_block
         # Refresh "snake_speed" times per second (currently 12)
         clock.tick(snake_speed)
 
@@ -591,5 +591,5 @@ def gameLoopAuto():
     pygame.quit()
     quit()
 
-# Start Running the Game
+# Start running the Game
 gameLoop()
